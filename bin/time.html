@@ -1,0 +1,17 @@
+{{define "timeTemplate"}}
+<html>
+<head> <title></title>
+<style>
+    p{font-size: xx-large} p2 {color: red}
+</style>
+</head>
+<body>
+<p>
+The time is now <p2>{{.LocalTime}}</p2>
+<p3>
+({{.UTCTime}} UTC) {{.Name}}
+</p3>
+</p>
+</body>
+</html>
+{{end}}

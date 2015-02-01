@@ -22,7 +22,6 @@ import (
 "time"
 )
 
-var outputSlash bool
 var currUser string
 var portNO *int
 var printToFile int
@@ -42,11 +41,6 @@ Redirects to greetingHandler with a saved URL "/"
 */
 
 func greetingRedirect1(w http.ResponseWriter, r *http.Request) {
-    if outputSlash == false {
-        outputSlash = true
-	return
-    }
-
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/")
 
     if  printToFile == 1 { // make sure p2f is enabled
@@ -63,7 +57,6 @@ Redirects to greetingHandler with a saved URL "/index.html"
 */
 
 func greetingRedirect2(w http.ResponseWriter, r *http.Request) {
-    outputSlash = false
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/index.html")
 
     if  printToFile == 1 { // make sure p2f is enabled
@@ -79,7 +72,6 @@ Greeting message
 Presents the user with a login message if a cookie is found for them, otherwise redirects to the login page
 */
 func greetingHandler(w http.ResponseWriter, r *http.Request) {
-    outputSlash = false
     redirect := true
     for _, currCookie := range r.Cookies() { // check all potential cookies stored by the user for a matching cookie
     	if (currCookie.Name != "") {
@@ -101,8 +93,24 @@ func greetingHandler(w http.ResponseWriter, r *http.Request) {
     	//"<body>" +
     	//"</body>" +
     	//"</html>")
-    	newTemplate := template.New("redirect").ParseFiles("loginRedirect.html")   
-    	newTemplate.ExecuteTemplate(w,"newpage",portInfoStuff)
+
+    	t,err := template.New("loginRedirect").ParseFiles("loginRedirect.html")   
+        if err != nil {
+	    retryCount := 3
+	    while retryCount > 0 {
+                retryCount = retryCount - 1
+    	        t,err2 := template.New("loginRedirect").ParseFiles("loginRedirect.html") 
+                if err2 == nil {
+		    count = 0
+                }
+            }
+            if err2 != nil {
+		fmt.Println("Unable to generate login redirect template.  I give up")
+		return
+	    }
+        }
+
+    	t.ExecuteTemplate(w,"newpage",portInfoStuff)
     }
 }
 
@@ -113,7 +121,6 @@ Creates a cookie for the user name and redirects them to the home page if a vali
 If no valid user name was provided, outputs an error message
 */
 func loginHandler(w http.ResponseWriter, r *http.Request) {
-    outputSlash = false
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/login")
 
     if  printToFile == 1 {
@@ -207,7 +214,6 @@ Logout handler.
 Clears user cookie, displays goodbye message for 10 seconds, then redirects user to login form
 */
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
-   outputSlash = false
    fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/logout")
 
    if  printToFile == 1 { //Check if p2f flag is set
@@ -248,7 +254,6 @@ Outputs the current time in the format:
 Hour:Minute:Second PM/AM
 */
 func timeHandler(w http.ResponseWriter, r *http.Request) {
-    outputSlash = false
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/time")
 
     if  printToFile == 1 { //Check if the p2f flag is set
@@ -338,10 +343,7 @@ func main() {
 	printToFile = 1 // set to true
     }
 	
-    portInfoStuff = portInfo{
-	portNum: strconv.Itoa(*portNO),
-    }
-
+    portInfoStuff = portInfo{portNum : strconv.Itoa(*portNO)}
     outputSlash = true
 
     // URL handling

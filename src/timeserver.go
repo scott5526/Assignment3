@@ -101,7 +101,8 @@ func greetingHandler(w http.ResponseWriter, r *http.Request) {
     	//"<body>" +
     	//"</body>" +
     	//"</html>")
-    	newTemplate := template.New("redirect").ParseFiles("loginRedirect.html")   
+    	newTemplate := template.New("loginRedirect")
+        newTemplate,_ = newTemplate.ParseFiles("loginRedirect.tmpl")   
     	newTemplate.ExecuteTemplate(w,"newpage",portInfoStuff)
     }
 }
