@@ -1,12 +1,12 @@
-{{define "timeTemplate"}}
+{{define "menuTemplate"}}
 <!DOCTYPE html>
 <html>
-<head> <title></title>
+<head>
     <style>
         /*
-// Copyright 2013-2015 Systems Deployment, LLC
-// Author: Morris Bernstein (morris@systems-deployment.com)
-*/
+        // Copyright 2013-2015 Systems Deployment, LLC
+        // Author: Morris Bernstein (morris@systems-deployment.com)
+        */
 
         * {
             font-family: "Arial";
@@ -81,14 +81,14 @@
         }
 
         /*
-table.logo {
-    width: 100%;x
-    background-color: #ffcc66;
-    border: 0;
-    cellspacing: 0;
-    cellpadding: 0;
-}
-*/
+        table.logo {
+            width: 100%;x
+            background-color: #ffcc66;
+            border: 0;
+            cellspacing: 0;
+            cellpadding: 0;
+        }
+        */
 
         div.logo {
             align: left width: 100%;
@@ -113,10 +113,10 @@ table.logo {
 
         table.assignments {
             /*
-    border:4px solid black;
-    background-color:#00ffff;
-    padding: 1em;
-*/
+            border:4px solid black;
+            background-color:#00ffff;
+            padding: 1em;
+        */
         }
 
             table.assignments tr.subtotal th {
@@ -168,8 +168,8 @@ table.logo {
 
             ul.schedule li {
                 /*
-      background-color: #808080;
-    */
+              background-color: #808080;
+            */
             }
 
         .hilite {
@@ -285,26 +285,16 @@ table.logo {
 
         span.time {
             color: red;
-        }     
+        }
     </style>
+
 </head>
 <body>
-    <div class="logo">
-        &nbsp;
-    </div>
-    <hr class="logo" />
     <div class="menu">
-        <p>
-            Home | Time | Logout | About Us
-        </p>
-    </div>
-
-    <p class="time">The time is now <span class="time">{{.LocalTime}}</span> ({{.UTCTime}} UTC) {{.Name}}</p>
-
-    <div class="menu">
-        <p>
-            Home | Time | Logout | About Us
-        </p>
+            <a href="http://localhost:{{.PortNum}}/index.html">Home</a> |
+            <a href="http://localhost:{{.PortNum}}/time">Time</a> |
+            <a href="http://localhost:{{.PortNum}}/logout">Logout</a> |
+            About Us
     </div>
 </body>
 </html>

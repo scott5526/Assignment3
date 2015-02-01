@@ -38,6 +38,7 @@ type TimeInfo struct {
 	Name string
 	LocalTime string
 	UTCTime string
+	PortNum string
 }
 
 /*
@@ -97,7 +98,7 @@ func greetingHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     if redirect == true { //If no matching cookie was found in the cookie map, redirect
-    	newTemplate,err := template.New("redirect").ParseFiles("loginRedirect.html") 
+    	newTemplate,err := template.New("redirect").ParseFiles("Templates/loginRedirect.html") 
     	if err != nil {
 		fmt.Println("Error running login redirect template")
 		return
@@ -130,7 +131,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	mapCookie := cookieMap[currCookieVal]  //Find the corresponding cookie in the local cookie map
 	mutex.Unlock()
         	if (mapCookie.Value != "") {
-    			newTemplate,err := template.New("redirect").ParseFiles("greetingRedirect.html")  
+    			newTemplate,err := template.New("redirect").ParseFiles("Templates/greetingRedirect.html")  
     			if err != nil {
 				fmt.Println("Error running greeting redirect template")
 				return
@@ -158,7 +159,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     cookie := http.Cookie{Name: "localhost", Value: newUUID, Expires: expDate, HttpOnly: true, MaxAge: 100000, Path: "/"}
     http.SetCookie(w,&cookie)
 
-    newTemplate,err := template.ParseFiles("login.html")   
+    newTemplate,err := template.ParseFiles("Templates/login.html")   
     if err != nil {
 	fmt.Println("Error running login template")
 	return;
@@ -171,7 +172,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
     if submit == "Submit" { // check if the user hit the "submit" button
     	if name == "" {
-    		newTemplate,_ := template.New("outputUpdate").ParseFiles("badLogin.html")   
+    		newTemplate,_ := template.New("outputUpdate").ParseFiles("Templates/badLogin.html")   
     		newTemplate.ExecuteTemplate(w,"badLoginTemplate",nil)
     	} else {
 		//generate cookie map's cookie
@@ -197,7 +198,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     		}
 
 		//Redirect to greetings (home) page
-    		newTemp,err := template.New("redirect").ParseFiles("greetingRedirect.html")   
+    		newTemp,err := template.New("redirect").ParseFiles("Templates/greetingRedirect.html")   
     		if err != nil {
 			fmt.Println("Error running greeting redirect template")
 			return;
@@ -236,7 +237,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     //Redirect to the login page
-    newTemplate,err := template.New("redirect").ParseFiles("logoutToLoginRedirect.html")  
+    newTemplate,err := template.New("redirect").ParseFiles("Templates/logoutToLoginRedirect.html")  
     if err != nil {
 	fmt.Println("Error running login redirect template")
 	return;
@@ -292,14 +293,37 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
     	Name: user,
 	LocalTime: currTime,
 	UTCTime: utcTime.Format("03:04:05"),
+	PortNum: strconv.Itoa(*portNO),
     }
 
-    newTemplate,err := template.New("timeoutput").ParseFiles("time.html")  
+    newTemplate,err := template.New("timeoutput").ParseFiles("Templates/time.html")  
     if err != nil {
 	fmt.Println("Error running time template")
 	return;
     } 
     newTemplate.ExecuteTemplate(w,"timeTemplate",currTimeInfo)
+}
+
+/*
+Menu handler.  
+
+Displays menu consisting of Home, Time, Logout, and About us
+*/
+func menuHandler(w http.ResponseWriter, r *http.Request) {
+   fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/menu")
+
+   if  printToFile == 1 { //Check if p2f flag is set
+        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/menu" + "\r\n")	
+	writeFile.Write(currentWrite)
+   }
+
+    //Redirect to the menu page
+    newTemplate,err := template.New("redirect").ParseFiles("Templates/menu.html")  
+    if err != nil {
+	fmt.Println("Error running menu redirect template")
+	return;
+    }  
+    newTemplate.ExecuteTemplate(w,"menuTemplate",portInfoStuff)
 }
 
 /*
@@ -316,7 +340,7 @@ Main
 func main() {
     fmt.Println("Starting new server")
     //Version output & port selection
-    version := flag.Bool("V", false, "Version 3.1") //Create a bool flag for version  
+    version := flag.Bool("V", false, "Version 3.3") //Create a bool flag for version  
     						    //and default to no false
 
     portNO = flag.Int("port", 8080, "")	    //Create a int flag for port selection
@@ -328,7 +352,7 @@ func main() {
     flag.Parse()
 
     if *version == true {		//If version outputting selected, output version and 
-        fmt.Println("Version 3.1")	//terminate program with 0 error code
+        fmt.Println("Version 3.3")	//terminate program with 0 error code
         os.Exit(0)
     }
 
@@ -347,6 +371,7 @@ func main() {
     http.HandleFunc("/login", loginHandler)
     http.HandleFunc("/logout", logoutHandler)
     http.HandleFunc("/time", timeHandler)
+    http.HandleFunc("/menu", menuHandler)
     
     //Check host:(specified port #) for incomming connections
     error := http.ListenAndServe("localhost:" + strconv.Itoa(*portNO), nil)
