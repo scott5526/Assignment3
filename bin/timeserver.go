@@ -49,6 +49,7 @@ Redirects to greetingHandler with a saved URL "/"
 
 func greetingRedirect1(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path != "/" {
+	badHandler(w,r) // check if the URL is valid
 	return
     }
 
@@ -329,9 +330,22 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
 /*
 Handler for invalid requests.  Outputs a 404 error message and a cheeky message
 */
-func badHandler(w http.ResponseWriter, req *http.Request) {
-    http.NotFound(w, req)
+func badHandler(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path == "/index.html" {
+	return
+    } else if r.URL.Path == "/login" {
+	return
+    } else if r.URL.Path == "/logout" {
+	return
+    } else if r.URL.Path == "/time" {
+	return
+    } else if r.URL.Path == "/menu" {
+	return
+    }
+
+    http.NotFound(w, r)
     w.Write([]byte("These are not the URLs you're looking for."))
+    return
 }
 
 /*
@@ -340,7 +354,7 @@ Main
 func main() {
     fmt.Println("Starting new server")
     //Version output & port selection
-    version := flag.Bool("V", false, "Version 3.3") //Create a bool flag for version  
+    version := flag.Bool("V", false, "Version 3.3.1") //Create a bool flag for version  
     						    //and default to no false
 
     portNO = flag.Int("port", 8080, "")	    //Create a int flag for port selection
@@ -352,7 +366,7 @@ func main() {
     flag.Parse()
 
     if *version == true {		//If version outputting selected, output version and 
-        fmt.Println("Version 3.3")	//terminate program with 0 error code
+        fmt.Println("Version 3.3.1")	//terminate program with 0 error code
         os.Exit(0)
     }
 
