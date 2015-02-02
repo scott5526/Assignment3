@@ -23,6 +23,7 @@ import (
 )
 
 var currUser string
+var templatesPath *string
 var portNO *int
 var printToFile int
 var writeFile *os.File
@@ -99,7 +100,8 @@ func greetingHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     if redirect == true { //If no matching cookie was found in the cookie map, redirect
-    	newTemplate,err := template.New("redirect").ParseFiles("Templates/loginRedirect.html") 
+	path := (*templatesPath + "loginRedirect.html")
+    	newTemplate,err := template.New("redirect").ParseFiles(path) 
     	if err != nil {
 		fmt.Println("Error running login redirect template")
 		return
@@ -132,7 +134,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	mapCookie := cookieMap[currCookieVal]  //Find the corresponding cookie in the local cookie map
 	mutex.Unlock()
         	if (mapCookie.Value != "") {
-    			newTemplate,err := template.New("redirect").ParseFiles("Templates/greetingRedirect.html")  
+			path := *templatesPath + "greetingRedirect.html"
+    			newTemplate,err := template.New("redirect").ParseFiles(path)  
     			if err != nil {
 				fmt.Println("Error running greeting redirect template")
 				return
@@ -160,7 +163,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     cookie := http.Cookie{Name: "localhost", Value: newUUID, Expires: expDate, HttpOnly: true, MaxAge: 100000, Path: "/"}
     http.SetCookie(w,&cookie)
 
-    newTemplate,err := template.ParseFiles("Templates/login.html")   
+    path := *templatesPath + "login.html"
+    newTemplate,err := template.ParseFiles(path)   
     if err != nil {
 	fmt.Println("Error running login template")
 	return;
@@ -173,7 +177,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 
     if submit == "Submit" { // check if the user hit the "submit" button
     	if name == "" {
-    		newTemplate,_ := template.New("outputUpdate").ParseFiles("Templates/badLogin.html")   
+		path = *templatesPath + "/badLogin.html"
+    		newTemplate,_ := template.New("outputUpdate").ParseFiles(path)   
     		newTemplate.ExecuteTemplate(w,"badLoginTemplate",nil)
     	} else {
 		//generate cookie map's cookie
@@ -199,7 +204,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     		}
 
 		//Redirect to greetings (home) page
-    		newTemp,err := template.New("redirect").ParseFiles("Templates/greetingRedirect.html")   
+		path = *templatesPath + "greetingRedirect.html"
+    		newTemp,err := template.New("redirect").ParseFiles(path)   
     		if err != nil {
 			fmt.Println("Error running greeting redirect template")
 			return;
@@ -222,6 +228,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	writeFile.Write(currentWrite)
    }
 
+   foundCookie := false // set to true if user cookie is found (they are actually logged in)
    for _, currCookie := range r.Cookies() {  //Run through the range of applicable cookies on the user's browser
     	if (currCookie.Name != "") {
 	currCookieVal := currCookie.Value
@@ -229,6 +236,7 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
 	mapCookie := cookieMap[currCookieVal]  //Find the corresponding cookie in the local cookie map
 	mutex.Unlock()
         	if (mapCookie.Value != "") {
+			foundCookie = true // user was actually logged in
 			mutex.Lock()
     			delete(cookieMap, currCookieVal) //Delete the cleared cookie from the local cookie map
 			mutex.Unlock()
@@ -237,8 +245,20 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
     	}
     }
 
+    // User wasn't actually logged in, redirect them to login page
+    if !foundCookie {
+	path := (*templatesPath + "loginRedirect.html")
+    	newTemplate,err := template.New("redirect").ParseFiles(path) 
+    	if err != nil {
+		fmt.Println("Error running login redirect template")
+		return
+    	}   
+    	newTemplate.ExecuteTemplate(w,"loginRedirectTemplate",portInfoStuff)
+    }
+
     //Redirect to the login page
-    newTemplate,err := template.New("redirect").ParseFiles("Templates/logoutToLoginRedirect.html")  
+    path := *templatesPath + "logoutToLoginRedirect.html"
+    newTemplate,err := template.New("redirect").ParseFiles(path)  
     if err != nil {
 	fmt.Println("Error running login redirect template")
 	return;
@@ -297,7 +317,8 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
 	PortNum: strconv.Itoa(*portNO),
     }
 
-    newTemplate,err := template.New("timeoutput").ParseFiles("Templates/time.html")  
+    path := *templatesPath + "time.html"
+    newTemplate,err := template.New("timeoutput").ParseFiles(path)  
     if err != nil {
 	fmt.Println("Error running time template")
 	return;
@@ -319,7 +340,8 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
    }
 
     //Redirect to the menu page
-    newTemplate,err := template.New("redirect").ParseFiles("Templates/menu.html")  
+    path := *templatesPath + "menu.html"
+    newTemplate,err := template.New("redirect").ParseFiles(path)  
     if err != nil {
 	fmt.Println("Error running menu redirect template")
 	return;
@@ -361,6 +383,10 @@ func main() {
 					            //and default to port 8080
 
     p2f := flag.Bool("p2f", false, "") //flag to output to file
+
+    templatesPath = flag.String("templates", "Templates/", "")
+
+
     printToFile = 0 // set to false
 
     flag.Parse()
