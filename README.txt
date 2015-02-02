@@ -25,6 +25,9 @@ http://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.htm
 https://www.socketloop.com/tutorials/golang-convert-cast-bytes-to-string
 http://golang.org/pkg/math/rand/#Int
 https://gobyexample.com/mutexes
+http://www.golang-book.com/7/index.htm
+http://pivotallabs.com/next-steps-in-go-code-organization/
+http://stackoverflow.com/questions/9985559/organizing-a-multiple-file-go-project
 chrome://settings/cookies
 ---------------------------------------------------------------------------------------------
 
@@ -32,22 +35,29 @@ chrome://settings/cookies
 
 Running the timeserver.go file
 ---------------------------------------------------------------------------------------------
-To run timeserver.go, open the Windows command prompt and move to the directory of timeserver.go.  To run the file, use "go run timeserver.go" with any applicable flags.
-Also ensure that the login.gtpl and badLogin.gtpl files are in the timeserver.go directory.  login.html doesn't matter
+To run timeserver.go, open the Windows command prompt and move to the directory of timeserver.go.  To run the file, use "go build && src" with any applicable flags.
+Alternatively, to run the vanilla timeserver without any flags, just run the "src" executable in the src folder
 
 Applicable flags include:
 
--V ("go run timeserver.go -V)
+-V ("go build && src -V")
 
 Runs timeserver.go with the version flag enabled.  Will output the current version of the file and terminate the program with a zero error code.
 
--port # ("go run timeserver.go -port 9999)
+-port # ("go build && src -port 9999")
 
 Runs timeserver.go with a specified port (the default port # is 8080).
 
--p2f ("go run timeserver.go -p2f
+-p2f ("go build && src -p2f")
 
 Writes accessed URLS to output.txt in addition to the console
+
+-templates ("go build && src -templates ../Templates")
+Specifies the directory of the templates being used
+
+NOTE: All files, by name, found in the ./src/Templates folder MUST be present in the specified
+      directory or the timeserver WILL NOT RUN PROPERLY.  Use this flag to run different variants
+      of the files in the ./src/Templates folder.
 ---------------------------------------------------------------------------------------------
 
 
