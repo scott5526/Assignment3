@@ -25,13 +25,6 @@ http://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.htm
 https://www.socketloop.com/tutorials/golang-convert-cast-bytes-to-string
 http://golang.org/pkg/math/rand/#Int
 https://gobyexample.com/mutexes
-http://www.w3schools.com/jsref/prop_html_innerhtml.asp
-http://stackoverflow.com/questions/16019621/fill-div-with-html-using-javascript-jquery
-http://www.w3schools.com/Html/html_iframe.asp
-http://www.w3schools.com/jsref/jsref_link.asp
-http://www.w3schools.com/html/html_links.asp
-http://en.wikibooks.org/wiki/Cascading_Style_Sheets/Applying_CSS_to_HTML_and_XHTML
-https://code.google.com/p/go/issues/detail?id=231
 chrome://settings/cookies
 ---------------------------------------------------------------------------------------------
 
@@ -69,7 +62,6 @@ http://localhost:(xxx)/index.html
 http://localhost:(xxx)/time
 http://localhost:(xxx)/login
 http://localhost:(xxx)/logout
-http://localhost:(xxx)/menu
 ---------------------------------------------------------------------------------------------
 
 
