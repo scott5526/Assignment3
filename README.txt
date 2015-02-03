@@ -29,14 +29,14 @@ http://www.golang-book.com/7/index.htm
 http://pivotallabs.com/next-steps-in-go-code-organization/
 http://stackoverflow.com/questions/9985559/organizing-a-multiple-file-go-project
 chrome://settings/cookies
----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 Running the timeserver.go file
----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 To run timeserver.go, open the Windows command prompt and move to the directory of timeserver.go.  To run the file, use "go build && src" with any applicable flags.
-Alternatively, to run the vanilla timeserver without any flags, just run the "src" executable in the src folder
+Alternatively, to run the vanilla timeserver without any flags, just run the "src" executable in the src folder.
 
 Applicable flags include:
 
@@ -50,20 +50,27 @@ Runs timeserver.go with a specified port (the default port # is 8080).
 
 -p2f ("go build && src -p2f")
 
-Writes accessed URLS to output.txt in addition to the console
+Writes logging informationto loggingFile.log in addition to the console.  Writes to loggingFile.log will include more detailed information
+than console writes.
 
 -templates ("go build && src -templates ../Templates")
-Specifies the directory of the templates being used
+Specifies the directory of the templates being used.
 
 NOTE: All files, by name, found in the ./src/Templates folder MUST be present in the specified
       directory or the timeserver WILL NOT RUN PROPERLY.  Use this flag to run different variants
       of the files in the ./src/Templates folder.
----------------------------------------------------------------------------------------------
+
+-log ("go build && src -log someOtherFile.xml)
+Specified the .xml file to use to dictate logging.
+
+NOTE: This flag will essentially do nothing if p2f is not enabled.  Also, the .xml configuration file that you plan to use MUST be in Assignment3/etc folder
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 Accessing the server from a web browser
----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Enter the desired URL.  Some URLS are only accessible when logged in and will redirect otherwise
 
 The supported URLS are (where "(xxx)" is the port #:
@@ -72,12 +79,13 @@ http://localhost:(xxx)/index.html
 http://localhost:(xxx)/time
 http://localhost:(xxx)/login
 http://localhost:(xxx)/logout
----------------------------------------------------------------------------------------------
+http://localhost:(xxx)/menu
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
 Caveats
----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 When trying to run the server, if the specified port is already in use the program will terminate with a error message on a non-zero error code.
 
 Any URL beyond http://localhost:(port #) that doesn't match the above specified URL will result in a 404 not found web page.
@@ -89,4 +97,4 @@ Any URL beyond http://localhost:(port #) that doesn't match the above specified 
 output.txt will be wiped whenever restarting the server with the -p2f flag
 
 http://host:port was not used as was asked in the instructions.  Using this URL gave port-in-use errors so it was avoided
----------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------

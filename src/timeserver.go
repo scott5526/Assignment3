@@ -10,6 +10,7 @@ Copyright:  All code was written originally by Robinson Thompson with assistance
 package main
 
 import (
+Log "./seelog-master"
 "flag"
 "fmt"
 "html/template"
@@ -27,8 +28,6 @@ var templatesPath *string
 var redirect bool
 var portNO *int
 var printToFile int
-var writeFile *os.File
-var cookieMap = make(map[string]http.Cookie)
 var mutex = &sync.Mutex{}
 var portInfoStuff PortInfo
 
@@ -57,9 +56,9 @@ func greetingRedirect1(w http.ResponseWriter, r *http.Request) {
 
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/")
 
-    if  printToFile == 1 { // make sure p2f is enabled
-        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/" + "\r\n")
-	writeFile.Write(currentWrite)
+    if  printToFile == 1 { //Check if the p2f flag is set
+	defer Log.Flush()
+    	Log.Info("localhost:" + strconv.Itoa(*portNO) + "/\r\n")
     }
     greetingHandler(w,r)
 }
@@ -73,9 +72,9 @@ Redirects to greetingHandler with a saved URL "/index.html"
 func greetingRedirect2(w http.ResponseWriter, r *http.Request) {
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/index.html")
 
-    if  printToFile == 1 { // make sure p2f is enabled
-        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/index.html" + "\r\n")
-	writeFile.Write(currentWrite)
+    if  printToFile == 1 { //Check if the p2f flag is set
+	defer Log.Flush()
+    	Log.Info("localhost:" + strconv.Itoa(*portNO) + "/index.html\r\n")
     }
     greetingHandler(w,r)
 }
@@ -93,6 +92,10 @@ func greetingHandler(w http.ResponseWriter, r *http.Request) {
     	newTemplate,err := template.New("redirect").ParseFiles(path) 
     	if err != nil {
 		fmt.Println("Error running login redirect template")
+        	if printToFile == 1 {
+			defer Log.Flush()
+    			Log.Error("Error running login redirect template\r\n")
+		}
 		return
     	}   
     	newTemplate.ExecuteTemplate(w,"loginRedirectTemplate",portInfoStuff)
@@ -108,10 +111,9 @@ If no valid user name was provided, outputs an error message
 func loginHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/login")
 
-    if  printToFile == 1 {
-        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/login" + "\r\n")	
-	writeFile.Write(currentWrite)
-	
+    if  printToFile == 1 { //Check if the p2f flag is set
+	defer Log.Flush()
+    	Log.Info("localhost:" + strconv.Itoa(*portNO) + "/login\r\n")
     }
   
     loginCheck(w,r)
@@ -130,58 +132,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
     expDate := time.Now()
     expDate.AddDate(1,0,0)
 
-    //Generate & set browser cookie
-    cookie := http.Cookie{Name: "localhost", Value: newUUID, Expires: expDate, HttpOnly: true, MaxAge: 100000, Path: "/"}
-    http.SetCookie(w,&cookie)
-
-    path := *templatesPath + "login.html"
-    newTemplate,err := template.ParseFiles(path)   
-    if err != nil {
-	fmt.Println("Error running login template")
-	return;
-    } 
-    newTemplate.Execute(w,"loginTemplate")
-
-    r.ParseForm()
-    name := r.PostFormValue("name")
-    submit := r.PostFormValue("submit") 
-
-    if submit == "Submit" { // check if the user hit the "submit" button
-    	if name == "" {
-		path = *templatesPath + "/badLogin.html"
-    		newTemplate,_ := template.New("outputUpdate").ParseFiles(path)   
-    		newTemplate.ExecuteTemplate(w,"badLoginTemplate",nil)
-    	} else {
-		//generate cookie map's cookie
-		mapCookie := http.Cookie{
-		Name: newUUID, 
-		Value: name, 
-		Path: "/", 
-		Domain: "localhost", 
-		Expires: expDate,
- 		HttpOnly: true, 
-		MaxAge: 100000,
-		}
-		//lock the cookie map while it's being written to
-		mapSetCookie(mapCookie, newUUID)
-
-		fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/login?name=" + name)
-
-    		if  printToFile == 1 { // check if the p2f flag was set
-        		currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/login?name=" + name + "\r\n")
-			writeFile.Write(currentWrite)
-    		}
-
-		//Redirect to greetings (home) page
-		path = *templatesPath + "greetingRedirect.html"
-    		newTemp,err := template.New("redirect").ParseFiles(path)   
-    		if err != nil {
-			fmt.Println("Error running greeting redirect template")
-			return;
-    		} 
-    		newTemp.ExecuteTemplate(w,"greetingRedirectTemplate",portInfoStuff)
-    	}
-    }
+    cookieSetup(w, r, newUUID, expDate)
 }
 
 /*
@@ -192,10 +143,10 @@ Clears user cookie, displays goodbye message for 10 seconds, then redirects user
 func logoutHandler(w http.ResponseWriter, r *http.Request) {
    fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/logout")
 
-   if  printToFile == 1 { //Check if p2f flag is set
-        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/logout" + "\r\n")	
-	writeFile.Write(currentWrite)
-   }
+    if  printToFile == 1 { //Check if the p2f flag is set
+	defer Log.Flush()
+    	Log.Info("localhost:" + strconv.Itoa(*portNO) + "/logout\r\n")
+    }
 
    clearMapCookie(r)
 
@@ -205,6 +156,10 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
     	newTemplate,err := template.New("redirect").ParseFiles(path) 
     	if err != nil {
 		fmt.Println("Error running login redirect template")
+        	if printToFile == 1 {
+			defer Log.Flush()
+    			Log.Error("Error running login redirect template\r\n")
+		}
 		return
     	}   
     	newTemplate.ExecuteTemplate(w,"loginRedirectTemplate",portInfoStuff)
@@ -215,6 +170,10 @@ func logoutHandler(w http.ResponseWriter, r *http.Request) {
     newTemplate,err := template.New("redirect").ParseFiles(path)  
     if err != nil {
 	fmt.Println("Error running login redirect template")
+        if printToFile == 1 {
+		defer Log.Flush()
+    		Log.Error("Error running login redirect template\r\n")
+	}
 	return;
     }  
     newTemplate.ExecuteTemplate(w,"loginRedirectTemplate",portInfoStuff)
@@ -231,8 +190,8 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
     fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/time")
 
     if  printToFile == 1 { //Check if the p2f flag is set
-        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/time" + "\r\n")
-	writeFile.Write(currentWrite)
+	defer Log.Flush()
+    	Log.Info("localhost:" + strconv.Itoa(*portNO) + "/time\r\n")
     }
 
     user := getUserName(r)
@@ -253,6 +212,7 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
     utcTime.UTC()
     //utcTime.Format("03:04:05 07")
 
+    //setup time struct for time.html
     currTimeInfo := TimeInfo {
     	Name: user,
 	LocalTime: currTime,
@@ -264,6 +224,10 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
     newTemplate,err := template.New("timeoutput").ParseFiles(path)  
     if err != nil {
 	fmt.Println("Error running time template")
+        if printToFile == 1 {
+		defer Log.Flush()
+    		Log.Error("Error running time template\r\n")
+	}
 	return;
     } 
     newTemplate.ExecuteTemplate(w,"timeTemplate",currTimeInfo)
@@ -278,8 +242,8 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
    fmt.Println("localhost:" + strconv.Itoa(*portNO) + "/menu")
 
    if  printToFile == 1 { //Check if p2f flag is set
-        currentWrite := []byte("localhost:" + strconv.Itoa(*portNO) + "/menu" + "\r\n")	
-	writeFile.Write(currentWrite)
+	defer Log.Flush()
+    	Log.Info("localhost:" + strconv.Itoa(*portNO) + "/menu\r\n")
    }
 
     //Redirect to the menu page
@@ -287,6 +251,10 @@ func menuHandler(w http.ResponseWriter, r *http.Request) {
     newTemplate,err := template.New("redirect").ParseFiles(path)  
     if err != nil {
 	fmt.Println("Error running menu redirect template")
+        if printToFile == 1 {
+		defer Log.Flush()
+    		Log.Error("Error running menu redirect template\r\n")
+	}
 	return;
     }  
     newTemplate.ExecuteTemplate(w,"menuTemplate",portInfoStuff)
@@ -318,6 +286,7 @@ Main
 */
 func main() {
     fmt.Println("Starting new server")
+
     //Version output & port selection
     version := flag.Bool("V", false, "Version 3.4.1") //Create a bool flag for version  
     						    //and default to no false
@@ -329,9 +298,19 @@ func main() {
 
     templatesPath = flag.String("templates", "Templates/", "")
 
+    logPath := flag.String("log", "seelog.xml", "")
+
+
+    //Setup the seelog logger (cudos to http://sillycat.iteye.com/blog/2070140, https://github.com/cihub/seelog/blob/master/doc.go#L57)
+    logger,loggerErr := Log.LoggerFromConfigAsFile("../etc/" + *logPath)
+    if loggerErr != nil {
+    	fmt.Println("Error creating logger from .xml log configuration file")
+    } else {
+	Log.ReplaceLogger(logger)
+    }
+    
 
     printToFile = 0 // set to false
-
     flag.Parse()
 
     if *version == true {		//If version outputting selected, output version and 
@@ -340,7 +319,6 @@ func main() {
     }
 
     if *p2f == true {
-	writeFile,_ = os.Create("output.txt")
 	printToFile = 1 // set to true
     }
 	
@@ -361,6 +339,10 @@ func main() {
 
     if error != nil {				// If the specified port is already in use, 
 	fmt.Println("Port already in use")	// output a error message and exit with a 
+        if printToFile == 1 {
+		defer Log.Flush()
+    		Log.Error("Port already in use\r\n")
+        }
 	os.Exit(1)				// non-zero error code
     }
 }

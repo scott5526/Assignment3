@@ -1,0 +1,32 @@
+[2015-02-03 05:34:57]		[INFO]	[timeserver.go main.greetingRedirect2tion 77]		localhost:8080/index.html
+
+[2015-02-03 05:34:57]		[INFO]	[timeserver.go main.loginHandlertion 116]		localhost:8080/login
+
+[2015-02-03 05:35:03]		[INFO]	[timeserver.go main.timeHandlertion 194]		localhost:8080/time
+
+[2015-02-03 05:35:10]		[INFO]	[timeserver.go main.greetingRedirect1tion 61]		localhost:8080/
+
+[2015-02-03 05:35:10]		[INFO]	[timeserver.go main.loginHandlertion 116]		localhost:8080/login
+
+[2015-02-03 05:35:12]		[INFO]	[timeserver.go main.logoutHandlertion 148]		localhost:8080/logout
+
+[2015-02-03 05:35:13]		[INFO]	[timeserver.go main.logoutHandlertion 148]		localhost:8080/logout
+
+[2015-02-03 05:35:13]		[INFO]	[timeserver.go main.loginHandlertion 116]		localhost:8080/login
+
+[2015-02-03 05:35:16]		[INFO]	[timeserver.go main.menuHandlertion 246]		localhost:8080/menu
+
+[2015-02-03 05:35:28]		[INFO]	[timeserver.go main.loginHandlertion 116]		localhost:8080/login
+
+[2015-02-03 05:35:31]		[INFO]	[timeserver.go main.loginHandlertion 116]		localhost:8080/login
+
+[2015-02-03 05:35:31]		[INFO]	[cookieManagement.go main.cookieSetuption 133]		localhost:8080/login?name=Scotty Thompson
+
+[2015-02-03 05:35:31]		[INFO]	[timeserver.go main.greetingRedirect2tion 77]		localhost:8080/index.html
+
+[2015-02-03 05:35:34]		[INFO]	[timeserver.go main.timeHandlertion 194]		localhost:8080/time
+
+[2015-02-03 05:35:37]		[INFO]	[timeserver.go main.logoutHandlertion 148]		localhost:8080/logout
+
+[2015-02-03 05:35:47]		[INFO]	[timeserver.go main.loginHandlertion 116]		localhost:8080/login
+
